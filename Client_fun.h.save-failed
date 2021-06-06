@@ -1,0 +1,133 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <gtk/gtk.h>
+
+
+void Ajoutclient(GtkWidget *widget,gpointer window);
+
+
+/*************************************************************/
+/********                 GLOBAL VARIABLE            *********/
+/*************************************************************/
+typedef struct{
+    gint idClient;
+    gchar nom[20];
+    gchar prenom[20];
+    gint cin;
+    gchar adresse[15];
+    gint telephone;
+}Client;
+//window variable
+GtkWidget *windowrecherche;
+
+/*************************************************************/
+/********          FONCTION AJOUT VOITURE            *********/
+/*************************************************************/
+void Ajoutclient(GtkWidget *widget,gpointer window){
+    Client clients;
+    FILE *fichier;
+    GtkWidget *windowdialog;
+    GtkWidget *layout;
+    GtkWidget *image;
+    GtkWidget *table;
+    GtkWidget *label[6];
+    GtkWidget *text;
+    GtkWidget *idClient,*nom,*prenom,*cin,*adresse,*telephone;
+
+
+    /***creat window dialog***/
+    windowdialog=gtk_dialog_new_with_buttons("Ajouter client",GTK_WINDOW(window),GTK_DIALOG_MODAL,"Valider",GTK_RESPONSE_OK,"Annuler",GTK_RESPONSE_CANCEL,NULL);
+    gtk_window_set_default_size(GTK_WINDOW(windowdialog),400,590);
+    gtk_window_set_icon_from_file(GTK_WINDOW(windowdialog),"add.png",NULL);
+    /***layout and image***/
+    layout=gtk_layout_new(NULL,NULL);
+    image=gtk_image_new_from_file("cardialg.jpg");
+    gtk_layout_put(GTK_LAYOUT(layout),image,0,0);
+    /***label text***/
+    text=g_locale_to_utf8("<span foreground=\"yellow\"size=\"x-large\"><b>IdClient </b></span>",-1,NULL,NULL,NULL);
+    label[0]=gtk_label_new(text);
+    gtk_label_set_use_markup(GTK_LABEL(label[0]),TRUE);
+    text=g_locale_to_utf8("<span  foreground=\"yellow\"size=\"x-large\"><b>Nom </b></span>",-1,NULL,NULL,NULL);
+    label[1]=gtk_label_new(text);
+    gtk_label_set_use_markup(GTK_LABEL(label[1]),TRUE);
+    text=g_locale_to_utf8("<span foreground=\"yellow\"size=\"x-large\"><b>Prenom </b></span>",-1,NULL,NULL,NULL);
+    label[2]=gtk_label_new(text);
+    gtk_label_set_use_markup(GTK_LABEL(label[2]),TRUE);
+    text=g_locale_to_utf8("<span foreground=\"yellow\"size=\"x-large\"><b>Cin </b></span>",-1,NULL,NULL,NULL);
+    label[3]=gtk_label_new(text);
+    gtk_label_set_use_markup(GTK_LABEL(label[3]),TRUE);
+    text=g_locale_to_utf8("<span foreground=\"yellow\"size=\"x-large\"><b>Adresse </b></span>",-1,NULL,NULL,NULL);
+    label[4]=gtk_label_new(text);
+    gtk_label_set_use_markup(GTK_LABEL(label[4]),TRUE);
+    text=g_locale_to_utf8("<span foreground=\"yellow\"size=\"x-large\"><b>Telephone </b></span>",-1,NULL,NULL,NULL);
+    label[5]=gtk_label_new(text);
+    gtk_label_set_use_markup(GTK_LABEL(label[5]),TRUE);
+    //free point text
+    g_free(text);
+    /** Entry Variable **/
+    idClient=gtk_entry_new();
+    nom=gtk_entry_new();
+    prenom=gtk_entry_new();
+    cin=gtk_entry_new();
+    adresse=gtk_entry_new();
+    telephone=gtk_entry_new();
+    /**creat table and add all label**/
+    table=gtk_table_new(6,2,FALSE);
+    gtk_table_attach_defaults(GTK_TABLE(table),label[0],0,1,0,1);
+    gtk_table_attach_defaults(GTK_TABLE(table),label[1],0,1,1,2);
+    gtk_table_attach_defaults(GTK_TABLE(table),label[2],0,1,2,3);
+    gtk_table_attach_defaults(GTK_TABLE(table),label[3],0,1,3,4);
+    gtk_table_attach_defaults(GTK_TABLE(table),label[4],0,1,4,5);
+    gtk_table_attach_defaults(GTK_TABLE(table),label[5],0,1,5,6);
+    /***Add Entry**/
+    // Label : Entry
+    gtk_table_attach_defaults(GTK_TABLE(table),idClient,1,2,0,1);
+    gtk_table_attach_defaults(GTK_TABLE(table),nom,1,2,1,2);
+    gtk_table_attach_defaults(GTK_TABLE(table),prenom,1,2,2,3);
+    gtk_table_attach_defaults(GTK_TABLE(table),cin,1,2,3,4);
+    gtk_table_attach_defaults(GTK_TABLE(table),adresse,1,2,4,5);
+    gtk_table_attach_defaults(GTK_TABLE(table),telephone,1,2,5,6);
+    //just spacings
+    gtk_table_set_row_spacings (GTK_TABLE (table), 5);
+    gtk_table_set_col_spacings (GTK_TABLE (table), 9);
+    gtk_container_set_border_width (GTK_CONTAINER(table), 5);
+    // put tabel inside layout
+    gtk_layout_put(GTK_LAYOUT(layout),table,0,0);
+    /**Add layout in window dialoge #gtk_container_add**/
+    gtk_box_pack_start((GtkBox *) (GtkDialog *) (gtk_dialog_get_content_area(windowdialog)), layout, TRUE, TRUE, 0);
+    gtk_widget_show_all(windowdialog);
+    /**while for boucle all time is correct **/
+    while(1){
+        //If the user presses a button ok --> and the entry empty --> creat window error
+          if(gtk_dialog_run(GTK_DIALOG(windowdialog))==GTK_RESPONSE_OK){
+            if(gtk_entry_get_text_length(GTK_ENTRY(idClient))==0||gtk_entry_get_text_length(GTK_ENTRY(nom))==0||gtk_entry_get_text_length(GTK_ENTRY(prenom))==0||gtk_entry_get_text_length(GTK_ENTRY(cin))==0||gtk_entry_get_text_length(GTK_ENTRY(adresse))==0||gtk_entry_get_text_length(GTK_ENTRY(telephone))==0){
+                GtkWidget *error=gtk_message_dialog_new(GTK_WINDOW(windowdialog),GTK_DIALOG_DESTROY_WITH_PARENT,GTK_MESSAGE_WARNING,GTK_BUTTONS_OK,"L'un des champs est vide !!! \n Slvp rempli touts les champs !!");
+                gtk_window_set_title(GTK_WINDOW(error), "Erreur");
+                gtk_window_set_icon_from_file(GTK_WINDOW(error),"error.png",NULL);
+                gtk_dialog_run(GTK_DIALOG(error));
+                gtk_widget_destroy(error);
+            }
+        //else all entry give it to variable struct and saved in file
+            else{
+                clients.idClient=atoi(gtk_entry_get_text(GTK_ENTRY(idClient)));
+                clients.cin=atoi(gtk_entry_get_text(GTK_ENTRY(cin)));
+                clients.telephone=atoi(gtk_entry_get_text(GTK_ENTRY(telephone)));
+                strcpy(clients.nom,gtk_entry_get_text(GTK_ENTRY(nom)));
+                strcpy(clients.prenom,gtk_entry_get_text(GTK_ENTRY(prenom)));
+                strcpy(clients.adresse,gtk_entry_get_text(GTK_ENTRY(adresse)));
+                gtk_widget_destroy(windowdialog);
+                fichier=fopen("Clients.txt","a+");
+                fprintf(fichier,"\n");
+                fprintf(fichier,"%d %s %s %d %s %d",clients.idClient,clients.nom,clients.prenom,clients.cin,clients.adresse,clients.telephone);
+
+                fclose(fichier);
+                break;
+            }
+          }
+          //if pressed Cancel the window dialog close
+        else{
+            gtk_widget_destroy(windowdialog);
+            break;
+        }
+    }
+}
